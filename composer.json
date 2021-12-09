@@ -1,0 +1,30 @@
+{
+    "name": "gterrusa/laravel-nova-google-calendar",
+    "description": "A Laravel Nova tool.",
+    "keywords": [
+        "laravel",
+        "nova"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.1.0",
+        "gterrusa/laravel-google-calendar": "0.0.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "GTerrusa\\LaravelNovaGoogleCalendar\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GTerrusa\\LaravelNovaGoogleCalendar\\ToolServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
