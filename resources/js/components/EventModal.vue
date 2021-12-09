@@ -138,12 +138,12 @@
                 <div v-if="!holidayEvent" class="pt-4 flex items-center">
                     <button type="submit" class="btn btn-default btn-primary mr-4">
                         <span v-if="!loading">{{ event ? 'Save Changes' : 'Create Event' }}</span>
-                        <img v-else src="/img/loading/Spinner.gif" alt="loading" class="loader">
+                        <img v-else src="../../img/loading/Spinner.gif" alt="loading" class="loader">
                     </button>
 
                     <button v-if="event" class="btn btn-default btn-danger" @click.prevent="onDeleteEvent">
                         <span v-if="!loadingDelete">Delete Event</span>
-                        <img v-else src="/img/loading/Spinner.gif" alt="loading" class="loader">
+                        <img v-else src="../../img/loading/Spinner.gif" alt="loading" class="loader">
                     </button>
                 </div>
             </form>

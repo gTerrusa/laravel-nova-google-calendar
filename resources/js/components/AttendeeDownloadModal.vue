@@ -49,7 +49,7 @@
                 <div class="pt-4">
                     <button type="submit" class="btn btn-default btn-primary mr-4">
                         <span v-if="!loading">Download Attendees</span>
-                        <img v-else src="/img/loading/Spinner.gif" alt="loading" class="loader">
+                        <img v-else src="../../img/loading/Spinner.gif" alt="loading" class="loader">
                     </button>
                 </div>
             </form>

@@ -46,7 +46,7 @@
                 <div class="sidebar-section">
                     <button @click="clearCalendarCache" class="btn btn-default btn-primary">
                         <span v-if="!loading">Refresh Calendar</span>
-                        <img v-else src="/img/loading/Spinner.gif" alt="loading" class="loader">
+                        <img v-else src="../../img/loading/Spinner.gif" alt="loading" class="loader">
                     </button>
                 </div>
             </div>

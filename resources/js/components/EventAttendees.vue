@@ -43,7 +43,7 @@
 
                     <button type="submit" class="btn btn-default btn-primary" :disabled="eventFull">
                         <span v-if="!loading">{{ eventFull ? 'Event Full' : 'Invite' }}</span>
-                        <img v-else src="/img/loading/Spinner.gif" alt="loading" class="loader">
+                        <img v-else src="../../img/loading/Spinner.gif" alt="loading" class="loader">
                     </button>
                 </div>
             </form>
@@ -78,7 +78,7 @@
             <div class="pt-4">
                 <button class="btn btn-default btn-primary" @click="downloadAttendees">
                     <span v-if="!attendeeLoading">Download</span>
-                    <img v-else src="/img/loading/Spinner.gif" alt="loading" class="loader">
+                    <img v-else src="../../img/loading/Spinner.gif" alt="loading" class="loader">
                 </button>
             </div>
         </div>
