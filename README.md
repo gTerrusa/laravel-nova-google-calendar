@@ -15,7 +15,7 @@ composer require gterrusa/laravel-nova-google-calendar
 
 You can publish the config file with:
 ```bash
-php artisan vendor:publish --tag="laravel-nova-google-calendar-config"
+php artisan vendor:publish --provider="GTerrusa\LaravelNovaGoogleCalendar\ToolServiceProvider"
 ```
 
 This is the contents of the published config file:
@@ -27,10 +27,24 @@ return [
 
 ```
 
-## Usage
+## Setup
 
+1. Follow the setup steps [here](https://github.com/gTerrusa/laravel-google-calendar)
+2. Include the tool in your NovaServiceProvider
 ```php
-// notes here
+    ...
+    use GTerrusa\LaravelNovaGoogleCalendar\LaravelNovaGoogleCalendar;
+    
+    ...
+
+    public function tools()
+    {
+        return [
+            ...,
+            new LaravelNovaGoogleCalendar()
+        ];
+    }
+
 ```
 
 ## Changelog
