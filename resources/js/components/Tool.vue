@@ -216,12 +216,16 @@ export default {
         },
     },
 
-    created() {
-        this.calendars = this.user_is_admin
-            ? Nova.config.calendars
-            : Nova.config.calendars.filter(cal => cal.summary === this.user.calendar || cal.summary === 'Holidays in United States');
-        this.selectedCalendars = Nova.config.calendars.map(cal => cal.id);
-    }
+  created() {
+    axios.get('/api/google-calendar/calendars')
+      .then(r => {
+        this.calendars = this.user.is_admin
+          ? r.data
+          : r.data.filter(cal => cal.summary === this.user.calendar || cal.summary === 'Holidays in United States');
+        this.selectedCalendars = r.data.map(cal => cal.id);
+      })
+      .catch(e => console.log(e));
+  }
 }
 </script>
 

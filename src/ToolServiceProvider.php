@@ -36,8 +36,7 @@ class ToolServiceProvider extends ServiceProvider
 
             Nova::provideToScript([
                 'user' => $user->toArray(),
-                'user_is_admin' => $user_admin_boolean ? $user->$user_admin_boolean : true,
-                'calendars' => (new GoogleCalendarController())->calendars()
+                'user_is_admin' => $user_admin_boolean ? $user->$user_admin_boolean : true
             ]);
         });
     }
