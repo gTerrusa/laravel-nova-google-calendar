@@ -89,6 +89,7 @@
                         <option :value="null">Does not repeat</option>
                         <option :value="['RRULE:FREQ=DAILY']">Every day</option>
                         <option :value="['RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR']">Every weekday (Monday to Friday)</option>
+                        <option :value="['RRULE:FREQ=WEEKLY;BYDAY=SA,SU']">Every weekend (Saturday and Sunday)</option>
                         <option
                             :value="[`RRULE:FREQ=WEEKLY;BYDAY=${moment(this.form.start).format('dd').toUpperCase()}`]"
                         >
