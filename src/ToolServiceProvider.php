@@ -22,6 +22,7 @@ class ToolServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/laravel-nova-google-calendar.php' => config_path('laravel-nova-google-calendar.php')
             ], 'config');
+            $this->publishes([__DIR__.'/../resources/images' => public_path('images')], 'images');
         }
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-nova-google-calendar');
