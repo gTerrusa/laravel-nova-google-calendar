@@ -17,7 +17,7 @@
           <h3 class="mb-2">Calendars</h3>
 
           <label v-for="calendar in calendars" class="flex items-center justify-between py-2 w-max">
-            <span class="flex items-center mr-4 text-80 leading-tight">
+            <span class="flex items-center mr-4 text-80 leading-tight cursor-pointer" @click.prevent="editCalendar(calendar)">
               <span class="bul mr-2" :style="{ backgroundColor: calendar.backgroundColor }"></span>  {{ calendar.primary ? 'Primary' : calendar.summary }}
             </span>
             <input
@@ -30,7 +30,7 @@
 
           <button
             v-if="user_is_admin"
-            @click="newCalModal = true"
+            @click="calModal = true"
             class="btn btn-default btn-outline rounded-lg mt-4"
           >
             + New Calendar
@@ -64,11 +64,12 @@
       @updateCalendars="updateCalendars($event)"
     ></event-modal>
 
-    <new-cal-modal
-      v-if="newCalModal"
-      @close="newCalModal = false"
+    <cal-modal
+      v-if="calModal"
+      :calendar="calToEdit"
+      @close="calModal = false; calToEdit = null"
       @updateCalendars="updateCalendars($event)"
-    ></new-cal-modal>
+    ></cal-modal>
 
     <attendee-download-modal
       v-if="downloadModal"
@@ -84,7 +85,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import EventModal from './EventModal';
-import NewCalModal from './NewCalModal';
+import CalModal from './CalModal';
 import AttendeeDownloadModal from './AttendeeDownloadModal';
 
 export default {
@@ -97,7 +98,7 @@ export default {
   components: {
     FullCalendar,
     EventModal,
-    NewCalModal,
+    CalModal,
     AttendeeDownloadModal
   },
 
@@ -108,7 +109,8 @@ export default {
       currentEvent: null,
       currentDate: null,
       showModal: false,
-      newCalModal: false,
+      calModal: false,
+      calToEdit: null,
       downloadModal: false,
       filter: !Nova.config.user_is_admin,
       loading: false,
@@ -211,6 +213,10 @@ export default {
       this.currentEvent = null;
       this.currentDate = null;
     },
+    editCalendar (calendar) {
+      this.calToEdit = calendar
+      this.calModal = true
+    },
     updateCalendars(e) {
       this.calendars = this.user_is_admin
         ? e.calendars
@@ -218,7 +224,8 @@ export default {
       this.refreshCount++;
       if (e.close) {
         this.closeModal();
-        this.newCalModal = false;
+        this.calModal = false;
+        this.calToEdit = null;
       }
     }
   },

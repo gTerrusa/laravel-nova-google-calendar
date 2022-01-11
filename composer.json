@@ -8,7 +8,7 @@
     "license": "MIT",
     "require": {
         "php": ">=7.1.0",
-        "gterrusa/laravel-google-calendar": "^0.1.1"
+        "gterrusa/laravel-google-calendar": "^0.1.2"
     },
     "autoload": {
         "psr-4": {
