@@ -58,6 +58,7 @@
       :calendars="calendars"
       :date="currentDate"
       :user="user"
+      :user_is_admin="user_is_admin"
       :event_list_start="event_list_start"
       :event_list_end="event_list_end"
       @close="closeModal"

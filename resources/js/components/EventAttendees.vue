@@ -92,9 +92,7 @@ export default {
   name: 'EventAttendees',
 
   props: {
-    event: { type: Object, required: true },
-    eventType: { type: String, required: true }
-
+    event: { type: Object, required: true }
   },
 
   data() {
@@ -128,20 +126,14 @@ export default {
 
   methods: {
     async saveAttendeeToDB() {
-      let endpoint = '/registrant/updateOrCreate'
-
-      if (this.eventType === 'tour') {
-        const valBaseUri = window.location.host.includes('fresh-staging.com')
-          ? 'valencia.fresh-staging.com'
-          : window.location.host.replace('events.', '')
-
-        endpoint = `${window.location.protocol}//${valBaseUri}/api/leads/createOrUpdate`
+      if (Nova.config.save_attendees_to_db) {
+        return await axios.post(Nova.config.attendee_create_or_update_path, {
+          email: this.form.attendee.email,
+          name: this.form.attendee.displayName
+        })
       }
 
-      return await axios.post(endpoint, {
-        email: this.form.attendee.email,
-        name: this.form.attendee.displayName
-      })
+      return true
     },
     async addAttendeeToCalendar() {
       return await axios.post('/api/google-calendar/calendars/events/attendees/add', this.form)

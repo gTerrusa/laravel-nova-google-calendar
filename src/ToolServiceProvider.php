@@ -37,7 +37,9 @@ class ToolServiceProvider extends ServiceProvider
 
             Nova::provideToScript([
                 'user' => $user->toArray(),
-                'user_is_admin' => $user_admin_boolean ? $user->$user_admin_boolean : true
+                'user_is_admin' => $user_admin_boolean ? $user->$user_admin_boolean : true,
+                'save_attendees_to_db' => config('laravel-nova-google-calendar.save_attendees_to_db'),
+                'attendee_create_or_update_path' => config('laravel-nova-google-calendar.attendee_create_or_update_path')
             ]);
         });
     }

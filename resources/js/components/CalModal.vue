@@ -134,7 +134,23 @@ export default {
 
     createNewCalendar () {
       this.loading = true;
-      axios.post('/api/google-calendar/calendars/create', this.form)
+
+      let data = {
+        summary: this.form.title,
+        description: {
+          url: this.form.url || slugify(this.form.title)
+        }
+      }
+
+      if (this.form.description) {
+        data.description.description = this.form.description
+      }
+
+      if (this.form.subtitle) {
+        data.description.subtitle = this.form.subtitle
+      }
+
+      axios.post('/api/google-calendar/calendars/create', data)
         .then(r => {
           this.$emit('updateCalendars', { calendars: r.data.calendars, close: true });
           this.loading = false;

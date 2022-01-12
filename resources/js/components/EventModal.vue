@@ -75,14 +75,6 @@
           ></textarea>
         </label>
 
-        <label class="block py-2">
-          <span class="block mb-2 text-80 leading-tight">Event Type:</span>
-          <select v-model="form.event_type" class="w-1/2 form-control form-input form-input-bordered my-2">
-            <option value="tour">Tour</option>
-            <option value="event">Event</option>
-          </select>
-        </label>
-
         <label v-if="!event" class="block py-2">
           <span class="block mb-2 text-80 leading-tight">Repeats:</span>
           <select v-model="form.recurrence" class="w-1/2 form-control form-input form-input-bordered my-2">
@@ -152,7 +144,6 @@
       <event-attendees
         v-if="showAttendees"
         :event="event"
-        :event-type="form.event_type"
         @attendeeAdded="onAttendeeAdded($event)"
         @back="showAttendees = false"
       ></event-attendees>
@@ -201,6 +192,7 @@ export default {
     date: { type: Object },
     calendars: { type: Array, required: true },
     user: { type: Object, required: true },
+    user_is_admin: { type: Boolean, default: true },
     event_list_start: { type: String, default: null },
     event_list_end: { type: String, default: null },
   },
@@ -224,9 +216,6 @@ export default {
           : 200,
         recurrence: null,
         include_following: false,
-        event_type: this.event && this.event.event.extendedProps.extendedProperties && this.event.event.extendedProps.extendedProperties.private && this.event.event.extendedProps.extendedProperties.private.event_type
-          ? this.event.event.extendedProps.extendedProperties.private.event_type
-          : 'tour',
         event_list_start: this.event_list_start,
         event_list_end: this.event_list_end
       },
