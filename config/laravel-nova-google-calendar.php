@@ -5,5 +5,7 @@ return [
 
     'save_attendees_to_db' => false,
 
-    'attendee_create_or_update_path' => '/api/leads/createOrUpdate'
+    'attendee_create_or_update_path' => '/api/leads/createOrUpdate',
+
+    'default_event_summary' => false
 ];

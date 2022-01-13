@@ -21,6 +21,7 @@
             name="title"
             v-model="form.title"
             class="w-full form-control form-input form-input-bordered"
+            :disabled="!!default_event_summary"
             required
           >
         </label>
@@ -200,10 +201,11 @@ export default {
   data() {
     return {
       moment,
+      default_event_summary: Nova.config.default_event_summary,
       form: {
         id: this.event ? this.event.event.id : null,
         calendar_id: null,
-        title: this.event ? this.event.event.title : '',
+        title: this.event ? this.event.event.title : Nova.config.default_event_summary || '',
         location: this.event ? this.event.event.extendedProps.location : '',
         description: this.event ? this.event.event.extendedProps.description : '',
         allDay: this.event ? this.event.event.allDay : false,

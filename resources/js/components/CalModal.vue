@@ -11,7 +11,7 @@
         </h3>
 
         <label class="block py-2">
-          <span class="block mb-2 text-80 leading-tight">Title:</span>
+          <span class="block mb-2 text-80 leading-tight">Calendar Name:</span>
           <input
             type="text"
             name="title"
@@ -22,7 +22,7 @@
         </label>
 
         <label class="block py-2">
-          <span class="block mb-2 text-80 leading-tight">Subtitle:</span>
+          <span class="block mb-2 text-80 leading-tight">Headline:</span>
           <input
             type="text"
             name="title"
@@ -42,7 +42,7 @@
         </label>
 
         <label class="block py-2">
-          <span class="block mb-2 text-80 leading-tight">Description:</span>
+          <span class="block mb-2 text-80 leading-tight">Description Copy:</span>
           <textarea
             name="description"
             v-model="form.description"
