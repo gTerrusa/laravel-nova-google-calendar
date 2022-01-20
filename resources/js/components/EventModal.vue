@@ -93,13 +93,21 @@
 
         <label class="block py-2">
           <span class="block mb-2 text-80 leading-tight">Calendar:</span>
-          <select v-model="form.calendar_id" class="w-1/2 form-control form-input form-input-bordered my-2" :disabled="event">
+          <select
+            v-model="form.calendar_id"
+            class="w-1/2 form-control form-input form-input-bordered my-2"
+            :disabled="event"
+            required
+          >
+            <option :value="null" disabled selected>
+              Select a Calendar
+            </option>
             <option
               v-for="calendar in calendars"
               v-if="event || calendar.summary !== 'Holidays in United States'"
               :value="calendar.id"
             >
-              {{ calendar.primary ? 'Primary' : calendar.summary }}
+              {{ calendar.summary }}
             </option>
           </select>
         </label>
@@ -295,12 +303,9 @@ export default {
     calIdInit() {
       if (this.event) {
         this.form.calendar_id =  this.event.event.extendedProps.calendar_id;
-      } else if (!this.user_is_admin) {
-        const calendar = this.calendars.find(cal => cal.summary === this.user.calendar);
-        this.form.calendar_id = calendar ? calendar.id : null;
       } else {
-        const primary = this.calendars.find(cal => cal.primary);
-        this.form.calendar_id = primary ? primary.id : null;
+        // const primary = this.calendars.find(cal => cal.primary);
+        // this.form.calendar_id = primary ? primary.id : null;
       }
     }
   },

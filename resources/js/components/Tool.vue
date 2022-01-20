@@ -18,7 +18,7 @@
 
           <label v-for="calendar in calendars" class="flex items-center justify-between py-2 w-max">
             <span class="flex items-center mr-4 text-80 leading-tight cursor-pointer" @click.prevent="editCalendar(calendar)">
-              <span class="bul mr-2" :style="{ backgroundColor: calendar.backgroundColor }"></span>  {{ calendar.primary ? 'Primary' : calendar.summary }}
+              <span class="bul mr-2" :style="{ backgroundColor: calendar.backgroundColor }"></span>  {{ calendar.summary }}
             </span>
             <input
               type="checkbox"
@@ -186,8 +186,8 @@ export default {
       axios.get(`/api/google-calendar/calendars?event_list_start=${encodeURIComponent(eventsStart)}&event_list_end=${encodeURIComponent(eventsEnd)}`)
         .then(r => {
           this.calendars = this.user_is_admin
-            ? r.data
-            : r.data.filter(cal => cal.summary === this.user.calendar || cal.summary === 'Holidays in United States');
+            ? r.data.filter(cal => !cal.primary)
+            : r.data.filter(cal => cal.summary === this.user.calendar);
           this.selectedCalendars = r.data.map(cal => cal.id);
         })
         .catch(e => console.log(e));

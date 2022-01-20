@@ -16,7 +16,7 @@
               v-if="calendar.summary !== 'Holidays in United States'"
               :value="calendar.id"
             >
-              {{ calendar.primary ? 'Primary' : calendar.summary }}
+              {{ calendar.summary }}
             </option>
           </select>
         </label>
