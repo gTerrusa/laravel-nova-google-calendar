@@ -142,7 +142,7 @@ export default {
       this.loading = true;
 
       try {
-        const { data } = await this.addAttendeeToCalendar()
+        var { data } = await this.addAttendeeToCalendar()
       } catch (err) {
         window.alert(err.response.data.message)
         this.loading = false
