@@ -140,10 +140,25 @@ export default {
     },
     async addAttendee() {
       this.loading = true;
-      const results = await Promise.allSettled([this.saveAttendeeToDB(), this.addAttendeeToCalendar()])
-      const result = results.find(r => r.value.config.url === '/api/google-calendar/calendars/events/attendees/add')
-      const data = result && result.value ? result.value.data : {}
-      const attendee = _.cloneDeep(this.form.attendee);
+
+      try {
+        const { data } = await this.addAttendeeToCalendar()
+      } catch (err) {
+        window.alert(err.response.data.message)
+        this.loading = false
+        return
+      }
+
+      try {
+        await this.saveAttendeeToDB()
+      } catch (err) {
+        window.alert(err)
+        this.loading = false
+        return
+      }
+
+      const attendee = _.cloneDeep(this.form.attendee)
+
       this.$emit('attendeeAdded', { attendee, data });
       this.attendees.push(attendee);
       this.form.attendee.email = '';
