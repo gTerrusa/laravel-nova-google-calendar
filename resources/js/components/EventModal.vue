@@ -153,6 +153,7 @@
       <event-attendees
         v-if="showAttendees"
         :event="event"
+        :calendar="calendar"
         @attendeeAdded="onAttendeeAdded($event)"
         @back="showAttendees = false"
       ></event-attendees>
@@ -210,6 +211,7 @@ export default {
     return {
       moment,
       default_event_summary: Nova.config.default_event_summary,
+      calendar: null,
       form: {
         id: this.event ? this.event.event.id : null,
         calendar_id: null,
@@ -241,6 +243,12 @@ export default {
       return (this.event)
         ? this.event.event.extendedProps.calendar_id === 'en.usa#holiday@group.v.calendar.google.com'
         : false;
+    }
+  },
+
+  watch: {
+    'form.calendar_id': function (val) {
+      this.calendar = this.calendars.find(cal => cal.id === val)
     }
   },
 

@@ -54,16 +54,23 @@
         <div class="overflow-auto">
           <p class="py-1" v-if="!attendees.length">There are no attendees for this event..</p>
 
-          <div v-if="attendees.length" class="form-grid items-center py-1">
+          <div v-if="attendees.length" class="attendee-list-grid items-center py-1">
             <h4>Name</h4>
             <h4>Email</h4>
+            <h4>No Show</h4>
             <h4>Status</h4>
           </div>
 
-          <div class="form-grid items-center py-1" v-for="attendee in attendees">
+          <div class="attendee-list-grid items-center py-1" v-for="attendee in attendees">
             <p>{{ attendee.displayName || attendee.email.split('@')[0] }}</p>
 
             <p>{{ attendee.email }}</p>
+
+            <input
+              type="checkbox"
+              :checked="isNoShow(attendee)"
+              @click="attendee.comment = 'No Show'; updateStatus(attendee)"
+            >
 
             <select v-model="attendee.responseStatus" @change="updateStatus(attendee)" class="form-control form-input form-input-bordered my-2">
               <option value="needsAction">Needs Action</option>
@@ -92,7 +99,8 @@ export default {
   name: 'EventAttendees',
 
   props: {
-    event: { type: Object, required: true }
+    event: { type: Object, required: true },
+    calendar: { type: Object, required: true },
   },
 
   data() {
@@ -125,11 +133,26 @@ export default {
   },
 
   methods: {
-    async saveAttendeeToDB() {
+    isNoShow (attendee) {
+      return attendee.comment && attendee.comment === 'No Show'
+    },
+    formatAppointment (attendee) {
+      return {
+        calendar_name: this.calendar.summary,
+        event_name: this.event.event.extendedProps.summary,
+        event_start: this.event.event.extendedProps.googleStart.date || this.event.event.extendedProps.googleStart.dateTime,
+        response_status: attendee.responseStatus,
+        no_show: this.isNoShow(attendee)
+      }
+    },
+    async saveAttendeeToDB(attendee) {
       if (Nova.config.save_attendees_to_db) {
         return await axios.post(Nova.config.attendee_create_or_update_path, {
-          email: this.form.attendee.email,
-          name: this.form.attendee.displayName
+          email: attendee.email,
+          name: attendee.displayName,
+          calendar_id: this.form.calendar_id,
+          event_id: this.form.id,
+          appointment: this.formatAppointment(attendee)
         })
       }
 
@@ -150,7 +173,7 @@ export default {
       }
 
       try {
-        await this.saveAttendeeToDB()
+        await this.saveAttendeeToDB(this.form.attendee)
       } catch (err) {
         window.alert(err)
         this.loading = false
@@ -165,16 +188,25 @@ export default {
       this.form.attendee.displayName = '';
       this.loading = false;
     },
-    updateStatus(attendee) {
-      axios.post('/api/google-calendar/calendars/events/attendees/update', {
-        id: this.event.event.id,
-        calendar_id: this.event.event.extendedProps.calendar_id || null,
-        attendee: attendee
-      })
-        .then(r => {
-          this.$emit('attendeeAdded', { attendee, data: r.data });
+    async updateStatus(attendee) {
+      try {
+        var { data } = await axios.post('/api/google-calendar/calendars/events/attendees/update', {
+          id: this.event.event.id,
+          calendar_id: this.event.event.extendedProps.calendar_id || null,
+          attendee: attendee
         })
-        .catch(e => console.log(e));
+      } catch (err) {
+        console.log(err)
+      }
+
+      try {
+        await this.saveAttendeeToDB(attendee)
+      } catch (err) {
+        window.alert(err)
+        return
+      }
+
+      this.$emit('attendeeAdded', { attendee, data });
     },
     downloadAttendees() {
       this.attendeeLoading = true;
@@ -219,6 +251,12 @@ export default {
 .form-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 150px;
+  gap: 1rem;
+}
+
+.attendee-list-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 150px 150px;
   gap: 1rem;
 }
 
