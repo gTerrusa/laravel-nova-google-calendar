@@ -220,8 +220,8 @@ export default {
     },
     updateCalendars(e) {
       this.calendars = this.user_is_admin
-        ? e.calendars
-        : e.calendars.filter(cal => cal.summary === this.user.calendar || cal.summary === 'Holidays in United States');
+        ? e.calendars.filter(cal => !cal.primary)
+        : e.calendars.filter(cal => cal.summary === this.user.calendar);
       this.refreshCount++;
       if (e.close) {
         this.closeModal();
