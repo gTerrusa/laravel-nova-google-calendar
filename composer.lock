@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ffb703e7ad07871be8f082b095ad65d2",
+    "content-hash": "37e555d07a7de24de626f68282c2e87e",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -381,16 +381,16 @@
         },
         {
             "name": "gterrusa/laravel-google-calendar",
-            "version": "0.1.6",
+            "version": "0.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gTerrusa/laravel-google-calendar.git",
-                "reference": "45888f537d39f768574abe48647b54b58c3cdadc"
+                "reference": "ce9ca6d2f345bdfad00d69569a144550eda12a23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gTerrusa/laravel-google-calendar/zipball/45888f537d39f768574abe48647b54b58c3cdadc",
-                "reference": "45888f537d39f768574abe48647b54b58c3cdadc",
+                "url": "https://api.github.com/repos/gTerrusa/laravel-google-calendar/zipball/ce9ca6d2f345bdfad00d69569a144550eda12a23",
+                "reference": "ce9ca6d2f345bdfad00d69569a144550eda12a23",
                 "shasum": ""
             },
             "require": {
@@ -450,7 +450,7 @@
             ],
             "support": {
                 "issues": "https://github.com/gTerrusa/laravel-google-calendar/issues",
-                "source": "https://github.com/gTerrusa/laravel-google-calendar/tree/0.1.6"
+                "source": "https://github.com/gTerrusa/laravel-google-calendar/tree/0.1.8"
             },
             "funding": [
                 {
@@ -458,7 +458,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-01-21T19:30:46+00:00"
+            "time": "2022-01-24T18:59:54+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

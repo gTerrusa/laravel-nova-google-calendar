@@ -69,7 +69,7 @@
             <input
               type="checkbox"
               :checked="isNoShow(attendee)"
-              @click="attendee.comment = 'No Show'; updateStatus(attendee)"
+              @click="toggleNoShow(attendee)"
             >
 
             <select v-model="attendee.responseStatus" @change="updateStatus(attendee)" class="form-control form-input form-input-bordered my-2">
@@ -134,7 +134,11 @@ export default {
 
   methods: {
     isNoShow (attendee) {
-      return attendee.comment && attendee.comment === 'No Show'
+      return !!(attendee.comment && attendee.comment === 'No Show')
+    },
+    toggleNoShow (attendee) {
+      attendee.comment = (this.isNoShow(attendee)) ? '' : 'No Show'
+      this.updateStatus(attendee)
     },
     formatAppointment (attendee) {
       return {
