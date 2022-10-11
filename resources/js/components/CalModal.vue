@@ -10,6 +10,20 @@
           {{ calendar ? 'Update Calendar' : 'Create New Calendar' }}
         </h3>
 
+        <label
+          v-if="calendar && calendar.id"
+          class="block py-2"
+        >
+          <span class="block mb-2 text-80 leading-tight">Calendar Id:</span>
+          <input
+            type="text"
+            name="id"
+            :value="calendar.id"
+            class="w-full form-control form-input form-input-bordered"
+            readonly
+          >
+        </label>
+
         <label class="block py-2">
           <span class="block mb-2 text-80 leading-tight">Calendar Name:</span>
           <input
