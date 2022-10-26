@@ -40,7 +40,9 @@ class ToolServiceProvider extends ServiceProvider
                 'user_is_admin' => $user_admin_boolean ? $user->$user_admin_boolean : true,
                 'save_attendees_to_db' => config('laravel-nova-google-calendar.save_attendees_to_db'),
                 'attendee_create_or_update_path' => config('laravel-nova-google-calendar.attendee_create_or_update_path'),
-                'default_event_summary' => config('laravel-nova-google-calendar.default_event_summary', false)
+                'default_event_summary' => config('laravel-nova-google-calendar.default_event_summary', false),
+                'db_attendee_additional_info' => config('laravel-nova-google-calendar.db_attendee_additional_info', []),
+                'fetch_db_attendee_additional_info_path' => config('laravel-nova-google-calendar.fetch_db_attendee_additional_info_path', null)
             ]);
         });
     }

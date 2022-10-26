@@ -51,33 +51,73 @@
       <div class="overflow-hidden scroll-grid">
         <h4 class="mb-2">Attendee List</h4>
 
-        <div class="overflow-auto">
+        <div class="overflow-auto p-3">
           <p class="py-1" v-if="!attendees.length">There are no attendees for this event..</p>
 
-          <div v-if="attendees.length" class="attendee-list-grid items-center py-1">
-            <h4>Name</h4>
-            <h4>Email</h4>
-            <h4>No Show</h4>
-            <h4>Status</h4>
-          </div>
+          <div class="attendee-list-grid items-start py-1" v-for="attendee in attendees">
+            <div>
+              <h4 class="py-1">Name</h4>
+              <input
+                :value="attendee.displayName || attendee.email.split('@')[0]"
+                type="text"
+                disabled
+                class="form-control form-input form-input-bordered my-2 max-w-full"
+              >
+            </div>
 
-          <div class="attendee-list-grid items-center py-1" v-for="attendee in attendees">
-            <p>{{ attendee.displayName || attendee.email.split('@')[0] }}</p>
+            <div>
+              <h4 class="py-1">Email</h4>
+              <input
+                :value="attendee.email"
+                type="text"
+                disabled
+                class="form-control form-input form-input-bordered my-2 max-w-full"
+              >
+            </div>
 
-            <p>{{ attendee.email }}</p>
+            <div>
+              <h4 class="py-1">No Show</h4>
+              <input
+                type="checkbox"
+                :checked="isNoShow(attendee)"
+                @click="toggleNoShow(attendee)"
+                class="my-2"
+              >
+            </div>
 
-            <input
-              type="checkbox"
-              :checked="isNoShow(attendee)"
-              @click="toggleNoShow(attendee)"
+            <div>
+              <h4 class="py-1">Status</h4>
+
+              <select
+                v-model="attendee.responseStatus"
+                class="form-control form-input form-input-bordered my-2 max-w-full"
+              >
+                <option value="needsAction">Needs Action</option>
+                <option value="accepted">Accepted</option>
+                <option value="declined">Declined</option>
+                <option value="tentative">Tentative</option>
+              </select>
+            </div>
+
+            <div
+              v-for="item in additionalData"
+              :key="item.field"
             >
+              <h4 class="py-1">{{ item.label }}</h4>
 
-            <select v-model="attendee.responseStatus" @change="updateStatus(attendee)" class="form-control form-input form-input-bordered my-2">
-              <option value="needsAction">Needs Action</option>
-              <option value="accepted">Accepted</option>
-              <option value="declined">Declined</option>
-              <option value="tentative">Tentative</option>
-            </select>
+              <input
+                :type="item.input"
+                v-model="attendee[item.field]"
+                :class="!['checkbox', 'radio'].includes(item.input) ? 'form-control form-input form-input-bordered my-2 max-w-full' : 'my-2'"
+              >
+            </div>
+
+            <button
+              class="btn btn-default btn-primary mb-2 mt-auto col-start-4"
+              @click="updateStatus(attendee)"
+            >
+              <span>Save</span>
+            </button>
           </div>
         </div>
       </div>
@@ -117,6 +157,7 @@ export default {
       },
       loading: false,
       attendeeLoading: false,
+      additionalData: Nova.config.db_attendee_additional_info || [],
     }
   },
 
@@ -132,22 +173,49 @@ export default {
     }
   },
 
+  async mounted() {
+    if (Nova.config.save_attendees_to_db && Nova.config.fetch_db_attendee_additional_info_path && this.additionalData && this.additionalData.length) {
+      try {
+        const { data } = await axios.post(Nova.config.fetch_db_attendee_additional_info_path, {
+          attendees: this.attendees
+        })
+
+        this.attendees = data
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  },
+
   methods: {
     isNoShow (attendee) {
       return !!(attendee.comment && attendee.comment === 'No Show')
     },
     toggleNoShow (attendee) {
       attendee.comment = (this.isNoShow(attendee)) ? '' : 'No Show'
-      this.updateStatus(attendee)
     },
     formatAppointment (attendee) {
-      return {
+      let appointment = {
         calendar_name: this.calendar.summary,
         event_name: this.event.event.extendedProps.summary,
         event_start: this.event.event.extendedProps.googleStart.date || this.event.event.extendedProps.googleStart.dateTime,
         response_status: attendee.responseStatus,
         no_show: this.isNoShow(attendee)
       }
+
+      if (this.additionalData && this.additionalData.length) {
+        let additional_data = {}
+
+        this.additionalData.forEach((item) => {
+          if (typeof attendee[item.field] !== 'undefined') {
+            additional_data[item.field] = attendee[item.field]
+          }
+        })
+
+        appointment.additional_data = additional_data
+      }
+
+      return appointment
     },
     async saveAttendeeToDB(attendee) {
       if (Nova.config.save_attendees_to_db) {
@@ -260,8 +328,16 @@ export default {
 
 .attendee-list-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 150px 150px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(60, 75, 95, .5);
+  border-radius: 10px;
+}
+
+.attendee-list-grid:last-of-type {
+  margin-bottom: 0;
 }
 
 .loader {
@@ -273,5 +349,9 @@ export default {
 
 .border-gray {
   border-color: rgb(60, 75, 95);
+}
+
+.col-start-4 {
+  grid-column-start: 4;
 }
 </style>
