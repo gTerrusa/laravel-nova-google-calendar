@@ -12,8 +12,17 @@
       </button>
     </h3>
 
-    <div class="attendee-grid py-2">
-      <form action="#" method="post" @submit.prevent="addAttendee" class="pb-4 border-b border-gray">
+    <div
+      class="attendee-grid py-2"
+      :class="{ noform: addAttendeesDisabled.includes(calendar.summary) }"
+    >
+      <form
+        v-if="!addAttendeesDisabled.includes(calendar.summary)"
+        action="#"
+        method="post"
+        @submit.prevent="addAttendee"
+        class="pb-4 border-b border-gray"
+      >
         <h4 class="mb-2">Add Attendee</h4>
 
         <div class="form-grid items-end">
@@ -116,7 +125,8 @@
               class="btn btn-default btn-primary mb-2 mt-auto col-start-4"
               @click="updateStatus(attendee)"
             >
-              <span>Save</span>
+              <span v-if="!attendeeLoading">Save</span>
+              <img v-else src="/images/loading/Spinner.gif" alt="loading" class="loader">
             </button>
           </div>
         </div>
@@ -124,7 +134,7 @@
 
       <div class="pt-4">
         <button class="btn btn-default btn-primary" @click="downloadAttendees">
-          <span v-if="!attendeeLoading">Download</span>
+          <span v-if="!downloadLoading">Download</span>
           <img v-else src="/images/loading/Spinner.gif" alt="loading" class="loader">
         </button>
       </div>
@@ -156,12 +166,18 @@ export default {
         }
       },
       loading: false,
+      downloadLoading: false,
       attendeeLoading: false,
-      additionalData: Nova.config.db_attendee_additional_info || [],
+      addAttendeesDisabled: Nova.config.add_attendees_disabled || [],
     }
   },
 
   computed: {
+    additionalData () {
+      return (Nova.config.db_attendee_additional_info && Array.isArray(Nova.config.db_attendee_additional_info))
+        ? Nova.config.db_attendee_additional_info.filter(item => item.calendars && Array.isArray(item.calendars) && item.calendars.includes(this.calendar.summary)) || []
+        : []
+    },
     eventFull() {
       const maxAttendees = this.event.event.extendedProps.extendedProperties
         ? this.event.event.extendedProps.extendedProperties.shared.max_attendees
@@ -261,6 +277,8 @@ export default {
       this.loading = false;
     },
     async updateStatus(attendee) {
+      this.attendeeLoading = true
+
       try {
         var { data } = await axios.post('/api/google-calendar/calendars/events/attendees/update', {
           id: this.event.event.id,
@@ -275,24 +293,28 @@ export default {
         await this.saveAttendeeToDB(attendee)
       } catch (err) {
         window.alert(err)
+        this.attendeeLoading = false
+
         return
       }
+
+      this.attendeeLoading = false
 
       this.$emit('attendeeAdded', { attendee, data });
     },
     downloadAttendees() {
-      this.attendeeLoading = true;
+      this.downloadLoading = true;
       axios.post('/api/google-calendar/calendars/events/attendees/download', {
         calendar_id: this.event.event.extendedProps.calendar_id,
         event_id: this.event.event.id
       })
         .then(r => {
           fileDownload(r.data, this.fileName);
-          this.attendeeLoading = false;
+          this.downloadLoading = false;
         })
         .catch(e => {
           console.log(e);
-          this.attendeeLoading = false;
+          this.downloadLoading = false;
         });
     },
   }
@@ -302,9 +324,13 @@ export default {
 <style scoped>
 .attendee-grid {
   display: grid;
-  grid-template-rows: max-content 300px;
+  grid-template-rows: max-content 300px max-content;
   gap: 1rem;
   overflow: hidden;
+}
+
+.attendee-grid.noform {
+  grid-template-rows: 300px max-content;
 }
 
 .btn-primary {

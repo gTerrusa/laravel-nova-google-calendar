@@ -20,6 +20,30 @@ return [
 
     /**
      * Additional data to send to the Laravel database.
+     *
+     * example:
+     * 'db_attendee_additional_info' => [
+     *     [
+     *         'field' => 'picked_up',
+     *         'label' => 'Picked Up',
+     *         'input' => 'checkbox',
+     *         'type' => 'boolean',
+     *         'default' => false,
+     *         'calendars' => [
+     *             'Gift Card Pick-Up'
+     *         ]
+     *     ],
+     *     [
+     *         'field' => 'gift_card_no',
+     *         'label' => 'Gift Card Number',
+     *         'input' => 'text',
+     *         'type' => 'string',
+     *         'default' => '',
+     *         'calendars' => [
+     *             'Gift Card Pick-Up'
+     *         ]
+     *     ]
+     * ],
      */
     'db_attendee_additional_info' => [],
 
@@ -29,6 +53,14 @@ return [
      * and return the same array with the additional data appended to each attendee.
      */
     'fetch_db_attendee_additional_info_path' => null,
+
+    /**
+     * An array of Calendar's that don't allow attendees to be added via the Calendar tool.
+     *
+     * example:
+     * 'add_attendees_disabled' => ['Gift Card Pick-Up'],
+     */
+    'add_attendees_disabled' => [],
 
     /**
      * Send Google Calendar Event Summary by default?
