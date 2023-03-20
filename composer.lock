@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "37e555d07a7de24de626f68282c2e87e",
+    "content-hash": "21a8705ab51e7c6b152a86e3e1a4e621",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -381,16 +381,16 @@
         },
         {
             "name": "gterrusa/laravel-google-calendar",
-            "version": "0.1.8",
+            "version": "0.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gTerrusa/laravel-google-calendar.git",
-                "reference": "ce9ca6d2f345bdfad00d69569a144550eda12a23"
+                "reference": "1cd8d5a90b82d57eec0cc7b0423a43ada4458f3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gTerrusa/laravel-google-calendar/zipball/ce9ca6d2f345bdfad00d69569a144550eda12a23",
-                "reference": "ce9ca6d2f345bdfad00d69569a144550eda12a23",
+                "url": "https://api.github.com/repos/gTerrusa/laravel-google-calendar/zipball/1cd8d5a90b82d57eec0cc7b0423a43ada4458f3f",
+                "reference": "1cd8d5a90b82d57eec0cc7b0423a43ada4458f3f",
                 "shasum": ""
             },
             "require": {
@@ -450,7 +450,7 @@
             ],
             "support": {
                 "issues": "https://github.com/gTerrusa/laravel-google-calendar/issues",
-                "source": "https://github.com/gTerrusa/laravel-google-calendar/tree/0.1.8"
+                "source": "https://github.com/gTerrusa/laravel-google-calendar/tree/0.1.9"
             },
             "funding": [
                 {
@@ -458,7 +458,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-01-24T18:59:54+00:00"
+            "time": "2023-03-20T16:15:37+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2916,5 +2916,5 @@
         "php": ">=7.1.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
