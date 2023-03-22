@@ -18,6 +18,14 @@ return [
      */
     'attendee_create_or_update_path' => '/api/leads/createOrUpdate',
 
+    /*
+     * Fields to hide in the "Attendee List" form.
+     *
+     * example: 'attendee_hidden_info' => ['name', 'status'],
+     *
+     */
+    'attendee_hidden_info' => [],
+
     /**
      * Additional data to send to the Laravel database.
      *

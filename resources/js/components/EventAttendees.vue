@@ -64,7 +64,9 @@
           <p class="py-1" v-if="!attendees.length">There are no attendees for this event..</p>
 
           <div class="attendee-list-grid items-start py-1" v-for="attendee in attendees">
-            <div>
+            <div
+              v-show="!hiddenData.includes('name')"
+            >
               <h4 class="py-1">Name</h4>
               <input
                 :value="attendee.displayName || attendee.email.split('@')[0]"
@@ -74,7 +76,9 @@
               >
             </div>
 
-            <div>
+            <div
+              v-show="!hiddenData.includes('email')"
+            >
               <h4 class="py-1">Email</h4>
               <input
                 :value="attendee.email"
@@ -84,7 +88,9 @@
               >
             </div>
 
-            <div>
+            <div
+              v-show="!hiddenData.includes('no_show')"
+            >
               <h4 class="py-1">No Show</h4>
               <input
                 type="checkbox"
@@ -94,7 +100,9 @@
               >
             </div>
 
-            <div>
+            <div
+              v-show="!hiddenData.includes('status')"
+            >
               <h4 class="py-1">Status</h4>
 
               <select
@@ -173,6 +181,9 @@ export default {
   },
 
   computed: {
+    hiddenData () {
+      return Nova.config.attendee_hidden_info
+    },
     additionalData () {
       return (Nova.config.db_attendee_additional_info && Array.isArray(Nova.config.db_attendee_additional_info))
         ? Nova.config.db_attendee_additional_info.filter(item => item.calendars && Array.isArray(item.calendars) && item.calendars.includes(this.calendar.summary)) || []
@@ -278,6 +289,7 @@ export default {
     },
     async updateStatus(attendee) {
       this.attendeeLoading = true
+      var errors = []
 
       try {
         var { data } = await axios.post('/api/google-calendar/calendars/events/attendees/update', {
@@ -287,20 +299,34 @@ export default {
         })
       } catch (err) {
         console.log(err)
+        if (err && err.response && err.response.data) {
+          errors.push(err.response.data)
+        } else {
+          errors.push('Error updating attendee in google calendar.')
+        }
       }
 
       try {
         await this.saveAttendeeToDB(attendee)
       } catch (err) {
-        window.alert(err)
-        this.attendeeLoading = false
-
-        return
+        console.log(err)
+        if (err && err.response && err.response.data) {
+          errors.push(err.response.data)
+        } else {
+          errors.push('Error updating attendee in database.')
+        }
       }
 
       this.attendeeLoading = false
 
-      this.$emit('attendeeAdded', { attendee, data });
+      if (errors && errors.length) {
+        errors.forEach((error) => {
+          Nova.error(error)
+        })
+      } else {
+        Nova.success('Attendee Updated!')
+        this.$emit('attendeeAdded', { attendee, data });
+      }
     },
     downloadAttendees() {
       this.downloadLoading = true;
