@@ -130,6 +130,13 @@
             </div>
 
             <button
+              class="btn btn-default btn-info mb-2 mt-auto"
+              @click="$root.$emit('reschedule', attendee)"
+            >
+              <span>Reschedule</span>
+            </button>
+
+            <button
               class="btn btn-default btn-primary mb-2 mt-auto col-start-4"
               @click="updateStatus(attendee)"
             >
@@ -342,7 +349,7 @@ export default {
           console.log(e);
           this.downloadLoading = false;
         });
-    },
+    }
   }
 }
 </script>

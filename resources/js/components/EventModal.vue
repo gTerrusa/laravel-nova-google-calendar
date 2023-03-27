@@ -133,7 +133,7 @@
             class="font-bold"
             style="color: #1a252f"
           >
-            View/Add Attendees
+            Manage Attendees
           </a>
         </div>
 

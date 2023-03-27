@@ -4,43 +4,66 @@
 
     <card class="p-8 calendar-layout">
       <div class="calendar-sidebar">
-        <div class="sidebar-section">
-          <h3 class="mb-2">Filter Results</h3>
+        <div v-if="rescheduling.email">
+          <div class="sidebar-section">
+            <h3 class="mb-2">Rescheduling</h3>
+          </div>
 
-          <select v-model="filter" class="w-full form-control form-input form-input-bordered my-2">
-            <option :value="false">All Events</option>
-            <option :value="true">Events With Attendees</option>
-          </select>
-        </div>
+          <div class="sidebar-section">
+            <p>
+              {{ rescheduling.email }}
+            </p>
+          </div>
 
-        <div class="sidebar-section">
-          <h3 class="mb-2">Calendars</h3>
-
-          <label v-for="calendar in calendars" class="flex items-center justify-between py-2 w-max">
-            <span class="flex items-center mr-4 text-80 leading-tight cursor-pointer" @click.prevent="editCalendar(calendar)">
-              <span class="bul mr-2" :style="{ backgroundColor: calendar.backgroundColor }"></span>  {{ calendar.summary }}
-            </span>
-            <input
-              type="checkbox"
-              :value="calendar.id"
-              v-model="selectedCalendars"
-              style="width: 18px; height: 18px;"
+          <div class="sidebar-section">
+            <button
+              class="btn btn-default btn-danger"
+              @click="cancelRescheduling"
             >
-          </label>
+              <span>Cancel</span>
+            </button>
 
-          <button
-            v-if="user_is_admin"
-            @click="calModal = true"
-            class="btn btn-default btn-outline rounded-lg mt-4"
-          >
-            + New Calendar
-          </button>
+          </div>
         </div>
+        <div v-else>
+          <div class="sidebar-section">
+            <h3 class="mb-2">Filter Results</h3>
 
-        <div class="sidebar-section">
-          <button @click="downloadModal = true" class="btn btn-default btn-primary">
-            Download Attendees
-          </button>
+            <select v-model="filter" class="w-full form-control form-input form-input-bordered my-2">
+              <option :value="false">All Events</option>
+              <option :value="true">Events With Attendees</option>
+            </select>
+          </div>
+
+          <div class="sidebar-section">
+            <h3 class="mb-2">Calendars</h3>
+
+            <label v-for="calendar in calendars" class="flex items-center justify-between py-2 w-max">
+              <span class="flex items-center mr-4 text-80 leading-tight cursor-pointer" @click.prevent="editCalendar(calendar)">
+                <span class="bul mr-2" :style="{ backgroundColor: calendar.backgroundColor }"></span>  {{ calendar.summary }}
+              </span>
+              <input
+                type="checkbox"
+                :value="calendar.id"
+                v-model="selectedCalendars"
+                style="width: 18px; height: 18px;"
+              >
+            </label>
+
+            <button
+              v-if="user_is_admin"
+              @click="calModal = true"
+              class="btn btn-default btn-outline rounded-lg mt-4"
+            >
+              + New Calendar
+            </button>
+          </div>
+
+          <div class="sidebar-section">
+            <button @click="downloadModal = true" class="btn btn-default btn-primary">
+              Download Attendees
+            </button>
+          </div>
         </div>
       </div>
 
@@ -77,6 +100,40 @@
       :calendars="calendars"
       @close="downloadModal = false"
     ></attendee-download-modal>
+
+    <div
+      v-if="rescheduling && rescheduling.fromEvent && rescheduling.toEvent"
+      class="rescheduling-modal"
+    >
+      <div class="card p-8">
+        <h3 class="mb-2">
+          Confirm Reschedule
+        </h3>
+
+        <p class="mt-2 mb-2">
+          <b>From:</b> {{ formatDate(rescheduling.fromEvent.event._instance.range.start) }}
+        </p>
+
+        <p class="mb-2">
+          <b>To:</b> {{ formatDate(rescheduling.toEvent.event._instance.range.start) }}
+        </p>
+
+        <button
+          class="btn btn-default btn-primary mt-2 mr-2"
+          @click="reschedule"
+        >
+          <span v-if="!isRescheduling">Confirm</span>
+          <img v-else src="/images/loading/Spinner.gif" alt="loading" class="loader">
+        </button>
+
+        <button
+          @click="rescheduling.toEvent = null"
+          class="btn btn-default btn-danger mt-2"
+        >
+          <span>Cancel</span>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -121,6 +178,12 @@ export default {
       event_list_start: null,
       event_list_end: null,
       eventListUpdated: 0,
+      rescheduling: {
+        email: '',
+        fromEvent: null,
+        toEvent: null
+      },
+      isRescheduling: false
     }
   },
 
@@ -156,6 +219,10 @@ export default {
         .flatMap(cal => {
           return cal.events
             .filter(e => {
+              if (this.rescheduling.email) {
+                return !this.isEventFull(e)
+              }
+
               return this.filter
                 ? e.attendees && e.attendees.length
                 : true;
@@ -205,7 +272,13 @@ export default {
       this.currentDate = date;
     },
     handleEventClick(event) {
-      console.log(event.event);
+      // TODO: open modal to confirm reschedule if rescheduling
+      if (this.rescheduling.email) {
+        this.rescheduling.toEvent = _.cloneDeep(event)
+        console.log(this.rescheduling.toEvent.event._instance.range.start)
+        return
+      }
+
       this.showModal = true;
       this.currentEvent = event;
     },
@@ -228,16 +301,125 @@ export default {
         this.calModal = false;
         this.calToEdit = null;
       }
-    }
+    },
+    async reschedule () {
+      this.isRescheduling = true
+      const attendee = _.cloneDeep(this.rescheduling)
+
+      delete attendee.fromEvent
+      delete attendee.toEvent
+
+      try {
+        await axios.post('/api/google-calendar/calendars/events/attendees/remove', {
+          id: this.rescheduling.fromEvent.event.id,
+          attendee,
+          calendar_id: this.rescheduling.fromEvent.event.extendedProps.calendar_id
+        })
+
+        var { data } = await axios.post('/api/google-calendar/calendars/events/attendees/add', {
+          id: this.rescheduling.toEvent.event.id,
+          attendee,
+          calendar_id: this.rescheduling.toEvent.event.extendedProps.calendar_id
+        })
+      } catch (err) {
+        if (err && err.response && err.response.data) {
+          Nova.error(err.response.data)
+        } else {
+          Nova.error('Error rescheduling attendee in google.')
+        }
+        this.cancelRescheduling()
+        return
+      }
+
+      if (Nova.config.save_attendees_to_db) {
+        try {
+          await axios.post(Nova.config.attendee_create_or_update_path, {
+            email: attendee.email,
+            name: attendee.displayName,
+            calendar_id: this.rescheduling.fromEvent.event.extendedProps.calendar_id,
+            event_id_remove: this.rescheduling.fromEvent.event.id,
+            event_id: this.rescheduling.toEvent.event.id,
+            appointment: this.formatAppointment(attendee, this.rescheduling.fromEvent.event)
+          })
+        } catch (err) {
+          if (err && err.response && err.response.data) {
+            Nova.error(err.response.data)
+          } else {
+            Nova.error('Error rescheduling attendee in db.')
+          }
+          this.cancelRescheduling()
+          return
+        }
+      }
+
+      Nova.success('Attendee Rescheduled!')
+      this.updateCalendars(data)
+      this.cancelRescheduling()
+    },
+    onReschedule (attendee) {
+      for (const prop in attendee) {
+        this.rescheduling[prop] = attendee[prop]
+      }
+      this.rescheduling.fromEvent = _.cloneDeep(this.currentEvent)
+      this.closeModal()
+    },
+    cancelRescheduling () {
+      this.isRescheduling = false
+      this.rescheduling = { email: '', fromEvent: null, toEvent: null }
+    },
+    isEventFull (event) {
+      const attendees = event.attendees || []
+      const maxAttendees = event.extendedProperties && event.extendedProperties.shared
+        ? event.extendedProperties.shared.max_attendees || 99999
+        : 99999;
+      return attendees.filter(a => a.responseStatus !== 'declined').length >= parseInt(maxAttendees);
+    },
+    formatDate (date) {
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    },
+    formatAppointment (attendee, event) {
+      const calendar = this.calendars.find(cal => cal.id === event.extendedProps.calendar_id)
+      const additionalData = this.additionalData(calendar)
+
+      let appointment = {
+        calendar_name: calendar.summary,
+        event_name: event.extendedProps.summary,
+        event_start: event.extendedProps.googleStart.date || event.extendedProps.googleStart.dateTime,
+        response_status: attendee.responseStatus,
+        no_show: !!(attendee.comment && attendee.comment === 'No Show')
+      }
+
+      if (additionalData && additionalData.length) {
+        let additional_data = {}
+
+        additionalData.forEach((item) => {
+          if (typeof attendee[item.field] !== 'undefined') {
+            additional_data[item.field] = attendee[item.field]
+          }
+        })
+
+        appointment.additional_data = additional_data
+      }
+
+      return appointment
+    },
+    additionalData (calendar) {
+      return (Nova.config.db_attendee_additional_info && Array.isArray(Nova.config.db_attendee_additional_info))
+        ? Nova.config.db_attendee_additional_info.filter(item => item.calendars && Array.isArray(item.calendars) && item.calendars.includes(calendar.summary)) || []
+        : []
+    },
   },
 
   created () {
-    // const date = new Date()
-    // const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
-    // firstDay.setDate(firstDay.getDate() - 7)
-    // const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-    // lastDay.setDate(lastDay.getDate() + 7)
-    // this.getCalendars(firstDay.toLocaleDateString('en-US'), lastDay.toLocaleDateString('en-US'))
+    this.$root.$on('reschedule', this.onReschedule)
   }
 }
 </script>
@@ -276,5 +458,26 @@ export default {
   height: 10px;
   border-radius: 100%;
   display: inline-block;
+}
+
+.rescheduling-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rescheduling-modal > div {
+  position: relative;
+  max-width: max(75%, 850px);
+  max-height: 90%;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+  overflow: auto;
 }
 </style>
