@@ -16,6 +16,12 @@
           </div>
 
           <div class="sidebar-section">
+            <p>
+              <b>From:</b> {{ formatDate(rescheduling.fromEvent.event._instance.range.start) }}
+            </p>
+          </div>
+
+          <div class="sidebar-section">
             <button
               class="btn btn-default btn-danger"
               @click="cancelRescheduling"
@@ -118,20 +124,22 @@
           <b>To:</b> {{ formatDate(rescheduling.toEvent.event._instance.range.start) }}
         </p>
 
-        <button
-          class="btn btn-default btn-primary mt-2 mr-2"
-          @click="reschedule"
-        >
-          <span v-if="!isRescheduling">Confirm</span>
-          <img v-else src="/images/loading/Spinner.gif" alt="loading" class="loader">
-        </button>
+        <div class="pt-2">
+          <button
+            class="btn btn-default btn-primary mr-2"
+            @click="reschedule"
+          >
+            <span v-if="!isRescheduling">Confirm</span>
+            <img v-else src="/images/loading/Spinner.gif" alt="loading" class="loader">
+          </button>
 
-        <button
-          @click="rescheduling.toEvent = null"
-          class="btn btn-default btn-danger mt-2"
-        >
-          <span>Cancel</span>
-        </button>
+          <button
+            @click="rescheduling.toEvent = null"
+            class="btn btn-default btn-danger"
+          >
+            <span>Cancel</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -339,7 +347,7 @@ export default {
             calendar_id: this.rescheduling.fromEvent.event.extendedProps.calendar_id,
             event_id_remove: this.rescheduling.fromEvent.event.id,
             event_id: this.rescheduling.toEvent.event.id,
-            appointment: this.formatAppointment(attendee, this.rescheduling.fromEvent.event)
+            appointment: this.formatAppointment(attendee, this.rescheduling.toEvent.event)
           })
         } catch (err) {
           if (err && err.response && err.response.data) {
