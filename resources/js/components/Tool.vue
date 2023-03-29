@@ -4,20 +4,28 @@
 
     <card class="p-8 calendar-layout">
       <div class="calendar-sidebar">
+        <div class="sidebar-section">
+          <h3 class="mb-2">Filter Results</h3>
+
+          <select v-model="filter" class="w-full form-control form-input form-input-bordered my-2">
+            <option value="all">All Events</option>
+            <option value="attendees">Events With Attendees</option>
+            <option value="no-attendees">Events Without Attendees</option>
+          </select>
+        </div>
+
         <div v-if="rescheduling.email">
           <div class="sidebar-section">
             <h3 class="mb-2">Rescheduling</h3>
-          </div>
 
-          <div class="sidebar-section">
-            <p>
+            <p class="mb-2">
+              <b>Email:</b> <br>
               {{ rescheduling.email }}
             </p>
-          </div>
 
-          <div class="sidebar-section">
             <p>
-              <b>From:</b> {{ formatDate(rescheduling.fromEvent.event._instance.range.start) }}
+              <b>From:</b> <br>
+              {{ reschedulingFromDate }}
             </p>
           </div>
 
@@ -32,15 +40,6 @@
           </div>
         </div>
         <div v-else>
-          <div class="sidebar-section">
-            <h3 class="mb-2">Filter Results</h3>
-
-            <select v-model="filter" class="w-full form-control form-input form-input-bordered my-2">
-              <option :value="false">All Events</option>
-              <option :value="true">Events With Attendees</option>
-            </select>
-          </div>
-
           <div class="sidebar-section">
             <h3 class="mb-2">Calendars</h3>
 
@@ -77,7 +76,7 @@
         v-if="events"
         ref="fullCalendar"
         :options="calendarOptions"
-        :key="`full-calendar-${selectedCalendars.length}-${filter ? 'filtered' : 'unfiltered'}-${refreshCount}`"
+        :key="`full-calendar-${selectedCalendars.length}-${filter}-${refreshCount}`"
       ></full-calendar>
     </card>
 
@@ -117,11 +116,11 @@
         </h3>
 
         <p class="mt-2 mb-2">
-          <b>From:</b> {{ formatDate(rescheduling.fromEvent.event._instance.range.start) }}
+          <b>From:</b> {{ reschedulingFromDate }}
         </p>
 
         <p class="mb-2">
-          <b>To:</b> {{ formatDate(rescheduling.toEvent.event._instance.range.start) }}
+          <b>To:</b> {{ reschedulingToDate }}
         </p>
 
         <div class="pt-2">
@@ -178,7 +177,7 @@ export default {
       calModal: false,
       calToEdit: null,
       downloadModal: false,
-      filter: !Nova.config.user_is_admin,
+      filter: Nova.config.user_is_admin ? 'all' : 'attendees',
       loading: false,
       refreshCount: 0,
       user: Nova.config.user,
@@ -204,6 +203,7 @@ export default {
         events: this.events,
         initialView: 'dayGridMonth',
         locale: 'en',
+        timeZone: Nova.config.timeZone,
         dateClick: this.handleDateClick,
         eventClick: this.handleEventClick,
         datesSet: this.handleDatesSet,
@@ -227,11 +227,11 @@ export default {
         .flatMap(cal => {
           return cal.events
             .filter(e => {
-              if (this.rescheduling.email) {
+              if (this.filter === 'no-attendees') {
                 return !this.isEventFull(e)
               }
 
-              return this.filter
+              return this.filter === 'attendees'
                 ? e.attendees && e.attendees.length
                 : true;
             })
@@ -247,6 +247,30 @@ export default {
               return e;
             }) || []
         });
+    },
+
+    reschedulingFromDate () {
+      try {
+        return this.formatDate(this.rescheduling.fromEvent.event.extendedProps.googleStart.dateTime)
+      } catch (e) {
+        try {
+          return this.formatDate(this.rescheduling.fromEvent.event.extendedProps.googleStart.date)
+        } catch (e) {
+          return ''
+        }
+      }
+    },
+
+    reschedulingToDate () {
+      try {
+        return this.formatDate(this.rescheduling.toEvent.event.extendedProps.googleStart.dateTime)
+      } catch (e) {
+        try {
+          return this.formatDate(this.rescheduling.toEvent.event.extendedProps.googleStart.date)
+        } catch (e) {
+          return ''
+        }
+      }
     }
   },
 
@@ -254,6 +278,12 @@ export default {
     eventListUpdated (val) {
       this.getCalendars(this.event_list_start, this.event_list_end)
     },
+
+    'rescheduling.fromEvent': function (val) {
+      if (val) {
+        this.filter = 'no-attendees'
+      }
+    }
   },
 
   methods: {
@@ -280,10 +310,12 @@ export default {
       this.currentDate = date;
     },
     handleEventClick(event) {
-      // TODO: open modal to confirm reschedule if rescheduling
       if (this.rescheduling.email) {
-        this.rescheduling.toEvent = _.cloneDeep(event)
-        console.log(this.rescheduling.toEvent.event._instance.range.start)
+        if (!this.isEventFull(event.event.extendedProps)) {
+          this.rescheduling.toEvent = _.cloneDeep(event)
+        } else {
+          window.alert('The event you are trying to reschedule to is already full.')
+        }
         return
       }
 
@@ -383,14 +415,15 @@ export default {
       return attendees.filter(a => a.responseStatus !== 'declined').length >= parseInt(maxAttendees);
     },
     formatDate (date) {
-      return date.toLocaleDateString('en-US', {
+      return (new Date(date)).toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
+        timeZone: Nova.config.timeZone
       })
     },
     formatAppointment (attendee, event) {
@@ -435,7 +468,7 @@ export default {
 <style scoped>
 .calendar-layout {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: 250px 1fr;
   grid-column-gap: 1rem;
 }
 

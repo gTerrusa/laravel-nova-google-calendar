@@ -44,7 +44,8 @@ class ToolServiceProvider extends ServiceProvider
                 'attendee_hidden_info' => config('laravel-nova-google-calendar.attendee_hidden_info', []),
                 'db_attendee_additional_info' => config('laravel-nova-google-calendar.db_attendee_additional_info', []),
                 'fetch_db_attendee_additional_info_path' => config('laravel-nova-google-calendar.fetch_db_attendee_additional_info_path', null),
-                'add_attendees_disabled' => config('laravel-nova-google-calendar.add_attendees_disabled', [])
+                'add_attendees_disabled' => config('laravel-nova-google-calendar.add_attendees_disabled', []),
+                'timeZone' => config('app.timezone', 'utc')
             ]);
         });
     }
