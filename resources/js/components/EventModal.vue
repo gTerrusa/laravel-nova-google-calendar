@@ -12,7 +12,7 @@
         @submit.prevent="onSubmit"
         class="p-8"
       >
-        <h3 class="mb-6">{{ event ? `Edit Event: ${event.event.title}` : `Create Event: ${moment(date.date).format('MM/DD/YYYY')}` }}</h3>
+        <h3 class="mb-6">{{ event ? `Edit Event: ${event.event.title}` : `Create Event: ${moment(date.dateStr).format('MM/DD/YYYY')}` }}</h3>
 
         <label class="block py-2">
           <span class="block mb-2 text-80 leading-tight">Title:</span>
@@ -191,6 +191,7 @@
 
 <script>
 import EventAttendees from './EventAttendees';
+import moment from 'moment-timezone';
 
 export default {
   name: 'EventModal',
@@ -209,6 +210,7 @@ export default {
 
   data() {
     return {
+      Nova,
       moment,
       default_event_summary: Nova.config.default_event_summary,
       calendar: null,
@@ -219,10 +221,12 @@ export default {
         location: this.event ? this.event.event.extendedProps.location : '',
         description: this.event ? this.event.event.extendedProps.description : '',
         allDay: this.event ? this.event.event.allDay : false,
-        start: moment(this.event ? this.event.event.start : this.date.date).format('YYYY-MM-DD HH:mm'),
+        start: this.event
+          ? moment(this.getGoogleDate(this.event.event.extendedProps.googleStart)).tz(Nova.config.timeZone).format('YYYY-MM-DD HH:mm')
+          : moment(this.date.dateStr).format('YYYY-MM-DD HH:mm'),
         end: this.event
-          ? moment(this.event.event.end).format('YYYY-MM-DD HH:mm')
-          : moment(this.date.date).add(1, 'hour').format('YYYY-MM-DD HH:mm'),
+          ? moment(this.getGoogleDate(this.event.event.extendedProps.googleEnd)).tz(Nova.config.timeZone).format('YYYY-MM-DD HH:mm')
+          : moment(this.date.dateStr).add(1, 'hour').format('YYYY-MM-DD HH:mm'),
         max_attendees: this.event && this.event.event.extendedProps.extendedProperties && this.event.event.extendedProps.extendedProperties.shared && this.event.event.extendedProps.extendedProperties.shared.max_attendees
           ? this.event.event.extendedProps.extendedProperties.shared.max_attendees
           : 200,
@@ -315,6 +319,9 @@ export default {
         // const primary = this.calendars.find(cal => cal.primary);
         // this.form.calendar_id = primary ? primary.id : null;
       }
+    },
+    getGoogleDate(googleDate) {
+      return googleDate.dateTime || googleDate.date
     }
   },
 

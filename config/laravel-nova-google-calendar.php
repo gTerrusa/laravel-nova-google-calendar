@@ -74,4 +74,6 @@ return [
      * Send Google Calendar Event Summary by default?
      */
     'default_event_summary' => false,
+
+    'default'
 ];

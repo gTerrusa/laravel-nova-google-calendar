@@ -19,6 +19,7 @@
         "@fullcalendar/timegrid": "^5.10.1",
         "@fullcalendar/vue": "^5.10.1",
         "js-file-download": "^0.4.12",
+        "moment-timezone": "^0.5.42",
         "node-sass": "^4.14.1",
         "vue": "^2.5.0"
     }
