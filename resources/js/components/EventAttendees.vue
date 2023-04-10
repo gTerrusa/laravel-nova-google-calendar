@@ -337,9 +337,15 @@ export default {
     },
     downloadAttendees() {
       this.downloadLoading = true;
+      
+      const start = this.event.event.extendedProps.googleStart.dateTime || this.event.event.extendedProps.googleStart.date
+      const end = this.event.event.extendedProps.googleEnd.dateTime || this.event.event.extendedProps.googleEnd.date
+      
       axios.post('/api/google-calendar/calendars/events/attendees/download', {
         calendar_id: this.event.event.extendedProps.calendar_id,
-        event_id: this.event.event.id
+        event_id: this.event.event.id,
+        start,
+        end
       })
         .then(r => {
           fileDownload(r.data, this.fileName);
