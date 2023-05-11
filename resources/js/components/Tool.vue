@@ -156,7 +156,7 @@ import AttendeeDownloadModal from './AttendeeDownloadModal';
 export default {
   metaInfo() {
     return {
-      title: 'LaravelNovaGoogleCalendar',
+      title: 'Calendar',
     }
   },
 
