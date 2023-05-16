@@ -126,6 +126,7 @@
                 :type="item.input"
                 v-model="attendee[item.field]"
                 :class="!['checkbox', 'radio'].includes(item.input) ? 'form-control form-input form-input-bordered my-2 max-w-full' : 'my-2'"
+                :disabled="item.disabled === true"
               >
             </div>
 
