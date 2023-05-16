@@ -178,7 +178,8 @@ export default {
         attendee: {
           displayName: '',
           email: '',
-          responseStatus: 'needsAction'
+          responseStatus: 'needsAction',
+          comment: 'No Comment'
         }
       },
       loading: false,
@@ -227,7 +228,7 @@ export default {
       return !!(attendee.comment && attendee.comment === 'No Show')
     },
     toggleNoShow (attendee) {
-      attendee.comment = (this.isNoShow(attendee)) ? '' : 'No Show'
+      attendee.comment = (this.isNoShow(attendee)) ? 'No Comment' : 'No Show'
     },
     formatAppointment (attendee) {
       let appointment = {
